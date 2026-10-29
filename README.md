@@ -34,4 +34,14 @@ The repository excludes dependencies, build products, caches, virtual environmen
 npm run build
 ```
 
+## Automated tests
+
+The frontend behavior tests use Node's built-in test runner and require no API key or extra packages. Backend tests use `pytest` and mock Groq responses, so they do not make network requests or incur API costs.
+
+```bash
+npm run test:frontend
+python -m pip install -r requirements-dev.txt
+npm run test:backend
+```
+
 To deploy, host the generated `dist/` static site and run the optional FastAPI service behind the same origin or configure a production API proxy.
