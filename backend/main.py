@@ -14,11 +14,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 app = FastAPI(title="CelebrAI optional AI service", version="1.0.0")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["POST", "GET"], allow_headers=["*"])
-logger = logging.getLogger("celebrai.groq")
-
 # Read the repository-root .env explicitly; Uvicorn does not load it automatically.
 load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)
+configured_origins = os.getenv("FRONTEND_ORIGINS", "https://celebr-ai.vercel.app,http://localhost:5173,http://127.0.0.1:5173")
+allowed_origins = [origin.strip().rstrip("/") for origin in configured_origins.split(",") if origin.strip()]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type"],
+)
+logger = logging.getLogger("celebrai.groq")
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 DEFAULT_MODEL = "openai/gpt-oss-120b"
