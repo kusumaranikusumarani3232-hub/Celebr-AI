@@ -16,8 +16,17 @@ from pydantic import BaseModel, Field
 app = FastAPI(title="CelebrAI optional AI service", version="1.0.0")
 # Read the repository-root .env explicitly; Uvicorn does not load it automatically.
 load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)
-configured_origins = os.getenv("FRONTEND_ORIGINS", "https://celebr-ai.vercel.app,http://localhost:5173,http://127.0.0.1:5173")
-allowed_origins = [origin.strip().rstrip("/") for origin in configured_origins.split(",") if origin.strip()]
+default_origins = (
+    "https://celebr-ai-kappa.vercel.app",
+    "https://celebr-ai.vercel.app",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+)
+configured_origins = os.getenv("FRONTEND_ORIGINS", "")
+allowed_origins = list(dict.fromkeys([
+    *default_origins,
+    *(origin.strip().rstrip("/") for origin in configured_origins.split(",") if origin.strip()),
+]))
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,

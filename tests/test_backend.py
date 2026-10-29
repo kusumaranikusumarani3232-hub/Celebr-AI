@@ -1,5 +1,6 @@
 import pytest
 from fastapi import HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import ValidationError
 
 from backend import main
@@ -50,6 +51,14 @@ def test_api_route_paths_are_registered():
     assert ("/api/health", "GET") in registered
     assert ("/api/plan", "POST") in registered
     assert ("/api/rescue", "POST") in registered
+
+
+def test_cors_allows_current_vercel_domain_without_wildcard():
+    cors = next(middleware for middleware in main.app.user_middleware if middleware.cls is CORSMiddleware)
+    allowed_origins = cors.kwargs["allow_origins"]
+    assert "https://celebr-ai-kappa.vercel.app" in allowed_origins
+    assert "https://celebr-ai.vercel.app" in allowed_origins
+    assert "*" not in allowed_origins
 
 
 def planning_payload(**overrides):
